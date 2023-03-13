@@ -3,6 +3,7 @@ const {
   getBookshelf,
   getBookById,
   updateBookById,
+  deleteBookById,
 } = require("./handler");
 const { validateBook } = require("./validate");
 
@@ -43,6 +44,11 @@ const routes = [
         },
       },
     },
+  },
+  {
+    method: "DELETE",
+    path: "/deleteBook/{id}",
+    handler: deleteBookById,
   },
 ];
 
