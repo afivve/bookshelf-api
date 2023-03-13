@@ -54,13 +54,14 @@ const addBook = (request, h) => {
 
   bookshelf.push(newBook);
 
-  const isSuccess = books.filter((book) => book.id === id).length > 0;
+  const isSuccess = bookshelf.filter((book) => book.id === id).length > 0;
   if (isSuccess) {
     const response = h.response({
       status: "success",
       message: "Buku berhasil ditambahkan",
       data: {
         bookId: id,
+        name: name,
       },
     });
     response.code(201);
@@ -75,6 +76,14 @@ const addBook = (request, h) => {
   return response;
 };
 
+const getBookshelf = (request, h) => ({
+  status: "success",
+  data: {
+    bookshelf,
+  },
+});
+
 module.exports = {
   addBook,
+  getBookshelf,
 };
