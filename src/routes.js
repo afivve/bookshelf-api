@@ -1,4 +1,9 @@
-const { addBook, getBookshelf, getBookById } = require("./handler");
+const {
+  addBook,
+  getBookshelf,
+  getBookById,
+  updateBookById,
+} = require("./handler");
 const { validateBook } = require("./validate");
 
 const routes = [
@@ -24,6 +29,20 @@ const routes = [
     method: "GET",
     path: "/book/{id}",
     handler: getBookById,
+  },
+
+  {
+    method: "PUT",
+    path: "/updateBook/{id}",
+    handler: updateBookById,
+    options: {
+      validate: {
+        payload: validateBook,
+        failAction: (request, h, err) => {
+          throw err;
+        },
+      },
+    },
   },
 ];
 
