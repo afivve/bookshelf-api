@@ -10,7 +10,7 @@ const { validateBook } = require("./validate");
 const routes = [
   {
     method: "POST",
-    path: "/bookshelf",
+    path: "/books",
     handler: addBook,
     options: {
       validate: {
@@ -18,23 +18,26 @@ const routes = [
         failAction: (request, h, err) => {
           throw err;
         },
+        options: {
+          stripUnknown: true,
+        },
       },
     },
   },
   {
     method: "GET",
-    path: "/bookshelf",
+    path: "/books",
     handler: getBookshelf,
   },
   {
     method: "GET",
-    path: "/book/{id}",
+    path: "/books/{bookId}",
     handler: getBookById,
   },
 
   {
     method: "PUT",
-    path: "/updateBook/{id}",
+    path: "/updateBook/{bookId}",
     handler: updateBookById,
     options: {
       validate: {
@@ -47,7 +50,7 @@ const routes = [
   },
   {
     method: "DELETE",
-    path: "/deleteBook/{id}",
+    path: "/books/{bookId}",
     handler: deleteBookById,
   },
 ];

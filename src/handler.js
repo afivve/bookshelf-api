@@ -1,3 +1,4 @@
+const { validateBook } = require("./validate");
 const { nanoid } = require("nanoid");
 const bookshelf = require("./bookshelf");
 
@@ -62,6 +63,8 @@ const addBook = (request, h) => {
       data: {
         bookId: id,
         name: name,
+        finished: finished,
+        reading: reading,
       },
     });
     response.code(201);
@@ -76,17 +79,69 @@ const addBook = (request, h) => {
   return response;
 };
 
-const getBookshelf = (request, h) => ({
-  status: "success",
-  data: {
-    bookshelf,
-  },
-});
+const getBookshelf = (request, h) => {
+  const { error, value } = validateBook.validate(request.query);
+
+  if (error) {
+    const response = h.response({
+      status: "fail",
+      message: error.details[0].message,
+    });
+
+    response.code(400);
+    return response;
+  }
+
+  const { name, reading, finished } = value;
+
+  let filteredBooks = bookshelf;
+
+  if (name) {
+    filteredBooks = filteredBooks.filter((book) => {
+      return book.name.toLowerCase().includes(name.toLowerCase());
+    });
+  }
+
+  if (reading !== undefined) {
+    const isReading = Boolean(reading);
+    filteredBooks = filteredBooks.filter((book) => {
+      return book.reading === isReading;
+    });
+  }
+
+  if (finished !== undefined) {
+    const isFinished = Boolean(finished);
+    filteredBooks = filteredBooks.filter((book) => {
+      return book.finished === isFinished;
+    });
+  }
+
+  if (filteredBooks.length > 0) {
+    return {
+      status: "success",
+      data: {
+        books: filteredBooks.map((book) => ({
+          id: book.id,
+          name: book.name,
+          publisher: book.publisher,
+        })),
+      },
+    };
+  } else {
+    const response = h.response({
+      status: "fail",
+      message: "Data tidak ditemukan",
+    });
+
+    response.code(400);
+    return response;
+  }
+};
 
 const getBookById = (request, h) => {
-  const { id } = request.params;
+  const { bookId } = request.params;
 
-  const book = bookshelf.filter((book) => book.id === id)[0];
+  const book = bookshelf.filter((book) => book.id === bookId)[0];
 
   if (book !== undefined) {
     return {
@@ -107,8 +162,8 @@ const getBookById = (request, h) => {
 };
 
 const updateBookById = (request, h) => {
-  const { id } = request.params;
-  const bookIndex = bookshelf.findIndex((book) => book.id === id);
+  const { bookId } = request.params;
+  const bookIndex = bookshelf.findIndex((book) => book.id === bookId);
 
   if (bookIndex !== -1) {
     const {
@@ -130,7 +185,7 @@ const updateBookById = (request, h) => {
         message: "Gagal memperbarui buku. Mohon isi nama buku",
       });
 
-      response.code(400);
+      response.code(404);
       return response;
     }
 
@@ -176,9 +231,9 @@ const updateBookById = (request, h) => {
 };
 
 const deleteBookById = (request, h) => {
-  const { id } = request.params;
+  const { bookId } = request.params;
 
-  const bookIndex = bookshelf.findIndex((book) => book.id === id);
+  const bookIndex = bookshelf.findIndex((book) => book.id === bookId);
 
   if (bookIndex !== -1) {
     bookshelf.splice(bookIndex, 1);
