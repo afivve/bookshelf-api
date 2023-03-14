@@ -37,7 +37,7 @@ const routes = [
 
   {
     method: "PUT",
-    path: "/updateBook/{bookId}",
+    path: "/books/{bookId}",
     handler: updateBookById,
     options: {
       validate: {
